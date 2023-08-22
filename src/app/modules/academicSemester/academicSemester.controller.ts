@@ -31,7 +31,18 @@ const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSingleFromDB = catchAsync(async (req: Request, res: Response) => {
+  const result = await AcademuicSemesterService.getSingleFromDB(req.params.id);
+  sendResponse<AcademicSemester | null>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Academic Semester fetched successfully',
+    data: result,
+  });
+});
+
 export const AcademicSemesterController = {
   insertIntoDB,
   getAllFromDB,
+  getSingleFromDB,
 };
