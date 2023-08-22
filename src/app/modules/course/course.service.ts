@@ -1,0 +1,1 @@
+const insertIntoDB = async (data: Course): Promise<Course> => {
