@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { WeekDays } from '@prisma/client';
 
 export const asyncForEach = async (array: any[], callback: any) => {

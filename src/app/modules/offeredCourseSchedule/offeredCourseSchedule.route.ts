@@ -4,4 +4,6 @@ const router = express.Router();
 
 router.post('/', OfferedCourseScheduleController.insertIntoDB);
 
+router.get('/', OfferedCourseScheduleController.getAllFromDB);
+
 export const OfferedCourseScheduleRoute = router;
