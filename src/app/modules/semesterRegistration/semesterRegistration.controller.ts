@@ -94,6 +94,20 @@ const enrollIntoCourse = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const withdrawFromCourse = catchAsync(async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const result = await SemesterRegistrationService.withdrawFromCourse(
+    user.userId,
+    req.body
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Student withdraw from course successfully',
+    data: result,
+  });
+});
+
 export const SemesterRegistrationController = {
   insertIntoDB,
   getAllFromDB,
@@ -102,4 +116,5 @@ export const SemesterRegistrationController = {
   deleteByIdFromDB,
   startRegistration,
   enrollIntoCourse,
+  withdrawFromCourse,
 };

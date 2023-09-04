@@ -99,6 +99,11 @@
             "date": 1693861270580,
             "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\successes\\phu-2023-05-09-03-success.log",
             "hash": "ff6df2918eaa6b513561cf6272281df1e5ca9d76e31dd957402e25bb55bcae47"
+        },
+        {
+            "date": 1693864876263,
+            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\successes\\phu-2023-05-09-04-success.log",
+            "hash": "373b71885a8fea6e2462e2313da63440e2b10b66bba612496412568ee4b1c4e0"
         }
     ],
     "hashType": "sha256"

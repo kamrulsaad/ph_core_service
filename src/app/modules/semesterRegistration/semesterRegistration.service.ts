@@ -20,6 +20,7 @@ import {
   IEnrollCoursePayload,
   ISemesterRegistrationFilterRequest,
 } from './semesterRegistration.interface';
+import { StudentSemesterRegistrationCourseService } from '../studentSemesterRegistrationCourse/studentSemesterRegistrationCourse.service';
 
 const insertIntoDB = async (
   data: SemesterRegistration
@@ -271,36 +272,25 @@ const startRegistration = async (
 const enrollIntoCourse = async (
   authUserId: string,
   payload: IEnrollCoursePayload
-) => {
-  const student = await prisma.student.findFirst({
-    where: {
-      studentId: authUserId,
-    },
-  });
+): Promise<{
+  message: string;
+}> => {
+  return StudentSemesterRegistrationCourseService.enrollIntoCourse(
+    authUserId,
+    payload
+  );
+};
 
-  const semesterRegistration = await prisma.semesterRegistration.findFirst({
-    where: {
-      status: SemesterRegistrationStatus.ONGOING,
-    },
-  });
-
-  if (!student) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Student not found!');
-  }
-
-  if (!semesterRegistration) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Registration not found!');
-  }
-
-  const enrollCourse = await prisma.studentSemesterRegistrationCourse.create({
-    data: {
-      studentId: student?.id,
-      semesterRegistrationId: semesterRegistration?.id,
-      offeredCourseId: payload.offeredCourseId,
-      offeredCourseSectionId: payload.offeredCourseSectionId,
-    },
-  });
-  return enrollCourse;
+const withdrawFromCourse = async (
+  authUserId: string,
+  payload: IEnrollCoursePayload
+): Promise<{
+  message: string;
+}> => {
+  return StudentSemesterRegistrationCourseService.withdrawFromCourse(
+    authUserId,
+    payload
+  );
 };
 
 export const SemesterRegistrationService = {
@@ -311,4 +301,5 @@ export const SemesterRegistrationService = {
   deleteByIdFromDB,
   startRegistration,
   enrollIntoCourse,
+  withdrawFromCourse,
 };
