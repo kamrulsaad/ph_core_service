@@ -105,16 +105,18 @@ const getAllFromDB = async (
   };
 };
 
-const getByIdFromDB = async (id: string): Promise<OfferedCourseClassSchedule | null> => {
+const getByIdFromDB = async (
+  id: string
+): Promise<OfferedCourseClassSchedule | null> => {
   const result = await prisma.offeredCourseClassSchedule.findUnique({
-      where: {
-          id
-      },
-      include: {
-          offeredCourseSection: true,
-          faculty: true,
-          room: true
-      }
+    where: {
+      id,
+    },
+    include: {
+      offeredCourseSection: true,
+      faculty: true,
+      room: true,
+    },
   });
   return result;
 };
@@ -124,38 +126,39 @@ const updateOneInDB = async (
   payload: Partial<OfferedCourseClassSchedule>
 ): Promise<OfferedCourseClassSchedule> => {
   const result = await prisma.offeredCourseClassSchedule.update({
-      where: {
-          id
-      },
-      data: payload,
-      include: {
-          offeredCourseSection: true,
-          faculty: true,
-          room: true
-      }
+    where: {
+      id,
+    },
+    data: payload,
+    include: {
+      offeredCourseSection: true,
+      faculty: true,
+      room: true,
+    },
   });
   return result;
 };
 
-const deleteByIdFromDB = async (id: string): Promise<OfferedCourseClassSchedule> => {
+const deleteByIdFromDB = async (
+  id: string
+): Promise<OfferedCourseClassSchedule> => {
   const result = await prisma.offeredCourseClassSchedule.delete({
-      where: {
-          id
-      },
-      include: {
-          offeredCourseSection: true,
-          faculty: true,
-          room: true
-      }
+    where: {
+      id,
+    },
+    include: {
+      offeredCourseSection: true,
+      faculty: true,
+      room: true,
+    },
   });
   return result;
 };
-
 
 export const OfferedCourseScheduleService = {
   insertIntoDB,
   getAllFromDB,
   getByIdFromDB,
   updateOneInDB,
-  deleteByIdFromDB
-}
+  deleteByIdFromDB,
+};

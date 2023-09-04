@@ -16,7 +16,10 @@ import {
   semesterRegistrationRelationalFieldsMapper,
   semesterRegistrationSearchableFields,
 } from './semesterRegistration.constant';
-import { ISemesterRegistrationFilterRequest } from './semesterRegistration.interface';
+import {
+  IEnrollCoursePayload,
+  ISemesterRegistrationFilterRequest,
+} from './semesterRegistration.interface';
 
 const insertIntoDB = async (
   data: SemesterRegistration
@@ -265,6 +268,41 @@ const startRegistration = async (
   };
 };
 
+const enrollIntoCourse = async (
+  authUserId: string,
+  payload: IEnrollCoursePayload
+) => {
+  const student = await prisma.student.findFirst({
+    where: {
+      studentId: authUserId,
+    },
+  });
+
+  const semesterRegistration = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: SemesterRegistrationStatus.ONGOING,
+    },
+  });
+
+  if (!student) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Student not found!');
+  }
+
+  if (!semesterRegistration) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Registration not found!');
+  }
+
+  const enrollCourse = await prisma.studentSemesterRegistrationCourse.create({
+    data: {
+      studentId: student?.id,
+      semesterRegistrationId: semesterRegistration?.id,
+      offeredCourseId: payload.offeredCourseId,
+      offeredCourseSectionId: payload.offeredCourseSectionId,
+    },
+  });
+  return enrollCourse;
+};
+
 export const SemesterRegistrationService = {
   insertIntoDB,
   getAllFromDB,
@@ -272,4 +310,5 @@ export const SemesterRegistrationService = {
   updateOneInDB,
   deleteByIdFromDB,
   startRegistration,
+  enrollIntoCourse,
 };
