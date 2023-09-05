@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  Course,
+  OfferedCourse,
   Prisma,
   SemesterRegistration,
   SemesterRegistrationStatus,
   StudentSemesterRegistration,
+  StudentSemesterRegistrationCourse,
 } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
@@ -405,23 +408,23 @@ const startNewSemester = async (id: string) => {
     },
   });
 
-  // if (!semesterRegistration) {
-  //   throw new ApiError(
-  //     httpStatus.BAD_REQUEST,
-  //     'Semester registration not found!'
-  //   );
-  // }
+  if (!semesterRegistration) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Semester registration not found!'
+    );
+  }
 
-  // if (semesterRegistration.status !== SemesterRegistrationStatus.ENDED) {
-  //   throw new ApiError(
-  //     httpStatus.BAD_REQUEST,
-  //     'Semester registration is not ended yet!'
-  //   );
-  // }
+  if (semesterRegistration.status !== SemesterRegistrationStatus.ENDED) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Semester registration is not ended yet!'
+    );
+  }
 
-  // if (semesterRegistration.academicSemester.isCurrent) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Semester is already started!');
-  // }
+  if (semesterRegistration.academicSemester.isCurrent) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Semester is already started!');
+  }
 
   await prisma.$transaction(async prismaTransactionClient => {
     await prismaTransactionClient.academicSemester.updateMany({
@@ -470,13 +473,32 @@ const startNewSemester = async (id: string) => {
                 offeredCourse: {
                   include: {
                     course: true,
-                  }
-                }
-              }
+                  },
+                },
+              },
             }
           );
 
-        console.log(studentSemeseterRegistrationCourses);
+        asyncForEach(
+          studentSemeseterRegistrationCourses,
+          async (
+            item: StudentSemesterRegistrationCourse & {
+              offeredCourse: OfferedCourse & {
+                course: Course;
+              };
+            }
+          ) => {
+            const enrolledCourseData = {
+              studentId: item.studentId,
+              courseId: item.offeredCourse.courseId,
+              academicSemesterId: semesterRegistration.academicSemesterId,
+            };
+
+            await prisma.studentEnrolledCourse.create({
+              data: enrolledCourseData,
+            });
+          }
+        );
       }
     );
   });
