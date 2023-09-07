@@ -398,7 +398,11 @@ const getMyRegistration = async (authUserId: string) => {
   };
 };
 
-const startNewSemester = async (id: string) => {
+const startNewSemester = async (
+  id: string
+): Promise<{
+  message: string;
+}> => {
   const semesterRegistration = await prisma.semesterRegistration.findUnique({
     where: {
       id,
@@ -459,25 +463,23 @@ const startNewSemester = async (id: string) => {
       studentSemesterRegistations,
       async (studentSemReg: StudentSemesterRegistration) => {
         const studentSemeseterRegistrationCourses =
-          await prisma.studentSemesterRegistrationCourse.findMany(
-            {
-              where: {
-                semesterRegistration: {
-                  id,
-                },
-                student: {
-                  id: studentSemReg.studentId,
+          await prisma.studentSemesterRegistrationCourse.findMany({
+            where: {
+              semesterRegistration: {
+                id,
+              },
+              student: {
+                id: studentSemReg.studentId,
+              },
+            },
+            include: {
+              offeredCourse: {
+                include: {
+                  course: true,
                 },
               },
-              include: {
-                offeredCourse: {
-                  include: {
-                    course: true,
-                  },
-                },
-              },
-            }
-          );
+            },
+          });
 
         asyncForEach(
           studentSemeseterRegistrationCourses,
@@ -488,15 +490,26 @@ const startNewSemester = async (id: string) => {
               };
             }
           ) => {
-            const enrolledCourseData = {
-              studentId: item.studentId,
-              courseId: item.offeredCourse.courseId,
-              academicSemesterId: semesterRegistration.academicSemesterId,
-            };
+            const isExistEnrolledData =
+              await prisma.studentEnrolledCourse.findFirst({
+                where: {
+                  studentId: item.studentId,
+                  courseId: item.offeredCourse.courseId,
+                  academicSemesterId: semesterRegistration.academicSemesterId,
+                },
+              });
 
-            await prisma.studentEnrolledCourse.create({
-              data: enrolledCourseData,
-            });
+            if (!isExistEnrolledData) {
+              const enrolledCourseData = {
+                studentId: item.studentId,
+                courseId: item.offeredCourse.courseId,
+                academicSemesterId: semesterRegistration.academicSemesterId,
+              };
+
+              await prisma.studentEnrolledCourse.create({
+                data: enrolledCourseData,
+              });
+            }
           }
         );
       }
