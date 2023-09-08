@@ -26,6 +26,7 @@ import {
 import { StudentSemesterRegistrationCourseService } from '../studentSemesterRegistrationCourse/studentSemesterRegistrationCourse.service';
 import { asyncForEach } from '../../../shared/utils';
 import { StudentSemesterPaymentService } from '../studentSemesterPayment/studentSemesterPayment.service';
+import { StudentEnrolledCourseMarkService } from '../studentEnrolledCourseMarks/studentEnrolledCourseMark.service';
 
 const insertIntoDB = async (
   data: SemesterRegistration
@@ -427,9 +428,9 @@ const startNewSemester = async (
     );
   }
 
-  // if (semesterRegistration.academicSemester.isCurrent) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Semester is already started!');
-  // }
+  if (semesterRegistration.academicSemester.isCurrent) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Semester is already started!');
+  }
 
   await prisma.$transaction(async prismaTransactionClient => {
     await prismaTransactionClient.academicSemester.updateMany({
@@ -460,7 +461,7 @@ const startNewSemester = async (
         },
       });
 
-    asyncForEach(
+    await asyncForEach(
       studentSemesterRegistations,
       async (studentSemReg: StudentSemesterRegistration) => {
         if (studentSemReg.totalCreditsTaken) {
@@ -496,7 +497,7 @@ const startNewSemester = async (
             }
           );
 
-        asyncForEach(
+        await asyncForEach(
           studentSemeseterRegistrationCourses,
           async (
             item: StudentSemesterRegistrationCourse & {
@@ -521,9 +522,19 @@ const startNewSemester = async (
                 academicSemesterId: semesterRegistration.academicSemesterId,
               };
 
-              await prismaTransactionClient.studentEnrolledCourse.create({
+              const studentEnrolledCourseData = await prismaTransactionClient.studentEnrolledCourse.create({
                 data: enrolledCourseData,
               });
+
+              await StudentEnrolledCourseMarkService.createStudentEnrolledCourseDefaultMark(
+                prismaTransactionClient,
+                {
+                  studentId: item.studentId,
+                  studentEnrolledCourseId: studentEnrolledCourseData.id,
+                  academicSemesterId: semesterRegistration.academicSemesterId,
+                }
+              )
+
             }
           }
         );
