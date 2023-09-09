@@ -9,6 +9,8 @@ const router = express.Router();
 
 router.get('/', SemesterRegistrationController.getAllFromDB);
 
+router.get('/get-my-semester-courses', auth(ENUM_USER_ROLE.STUDENT), SemesterRegistrationController.getMySemesterRegistrationCourses);
+
 router.get(
   '/get-my-registration',
   auth(ENUM_USER_ROLE.STUDENT),

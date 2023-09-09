@@ -9,12 +9,24 @@ const router = express.Router();
 
 router.get('/', FacultyController.getAllFromDB);
 
+router.get(
+  '/my-courses',
+  auth(ENUM_USER_ROLE.FACULTY),
+  FacultyController.myCourses
+);
+
 router.get('/:id', FacultyController.getByIdFromDB);
 
-router.patch(
+router.get(
+  '/my-courses',
+  auth(ENUM_USER_ROLE.FACULTY),
+  FacultyController.myCourses
+);
+
+router.delete(
   '/:id',
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-  FacultyController.updateIntoDB
+  FacultyController.deleteFromDB
 );
 
 router.delete(
