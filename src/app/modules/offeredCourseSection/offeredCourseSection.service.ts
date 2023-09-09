@@ -1,170 +1,252 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { OfferedCourseSection, Prisma } from "@prisma/client";
-import httpStatus from "http-status";
-import ApiError from "../../../errors/ApiError";
-import { paginationHelpers } from "../../../helpers/paginationHelper";
-import { IGenericResponse } from "../../../interfaces/common";
-import { IPaginationOptions } from "../../../interfaces/pagination";
-import prisma from "../../../shared/prisma";
-import { offeredCourseSectionRelationalFields, offeredCourseSectionRelationalFieldsMapper, offeredCourseSectionSearchableFields } from "./offeredCourseSection.constant";
-import { IOfferedCourseSectionFilterRequest } from "./offeredCourseSection.interface";
+import { OfferedCourseSection, Prisma } from '@prisma/client';
+import httpStatus from 'http-status';
+import ApiError from '../../../errors/ApiError';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { IGenericResponse } from '../../../interfaces/common';
+import { IPaginationOptions } from '../../../interfaces/pagination';
+import prisma from '../../../shared/prisma';
+import {
+  offeredCourseSectionRelationalFields,
+  offeredCourseSectionRelationalFieldsMapper,
+  offeredCourseSectionSearchableFields,
+} from './offeredCourseSection.constant';
+import {
+  IClassSchedules,
+  IOfferedCourseSectionCreate,
+  IOfferedCourseSectionFilterRequest,
+} from './offeredCourseSection.interface';
+import { asyncForEach } from '../../../shared/utils';
+import { OfferedCourseScheduleUtils } from '../offeredCourseSchedule/offeredCourseClassSchedule.utils';
 
-const insertIntoDB = async (data: any): Promise<OfferedCourseSection> => {
+const insertIntoDB = async (
+  payload: IOfferedCourseSectionCreate
+): Promise<OfferedCourseSection | null> => {
+  const { classSchedules, ...data } = payload;
 
-    const isExistOfferedCourse = await prisma.offeredCourse.findFirst({
-        where: {
-            id: data.offeredCourseId
-        }
-    })
+  const isExistOfferedCourse = await prisma.offeredCourse.findFirst({
+    where: {
+      id: data.offeredCourseId,
+    },
+  });
 
-    console.log(isExistOfferedCourse)
-    console.log("data: ", data)
+  if (!isExistOfferedCourse) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Offered Course does not exist!'
+    );
+  }
 
-    if (!isExistOfferedCourse) {
-        throw new ApiError(httpStatus.BAD_REQUEST, "Offered Course does not exist!")
-    }
+  await asyncForEach(classSchedules, async (schedule: any) => {
+    await OfferedCourseScheduleUtils.checkRoomAvailability(schedule);
+    await OfferedCourseScheduleUtils.checkFacultyAvailability(schedule);
+  });
 
-    data.semesterRegistrationId = isExistOfferedCourse.semesterRegistrationId;
+  const offeredCourseSectionData = await prisma.offeredCourseSection.findFirst({
+    where: {
+      offeredCourse: {
+        id: data.offeredCourseId,
+      },
+      title: data.title,
+    },
+  });
 
-    const result = await prisma.offeredCourseSection.create({
-        data
-    })
+  if (offeredCourseSectionData) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Course Section already exists!'
+    );
+  }
 
-    return result;
-}
+  const createSection = await prisma.$transaction(async transactionClient => {
+    const createOfferedCourseSection =
+      await transactionClient.offeredCourseSection.create({
+        data: {
+          title: data.title,
+          maxCapacity: data.maxCapacity,
+          offeredCourseId: data.offeredCourseId,
+          semesterRegistrationId: isExistOfferedCourse.semesterRegistrationId,
+        },
+      });
 
-const getAllFromDB = async (
-    filters: IOfferedCourseSectionFilterRequest,
-    options: IPaginationOptions
-): Promise<IGenericResponse<OfferedCourseSection[]>> => {
-    const { limit, page, skip } = paginationHelpers.calculatePagination(options);
-    const { searchTerm, ...filterData } = filters;
+    const scheduleData = classSchedules.map((schedule: IClassSchedules) => ({
+      startTime: schedule.startTime,
+      endTime: schedule.endTime,
+      dayOfWeek: schedule.dayOfWeek,
+      facultyId: schedule.facultyId,
+      roomId: schedule.roomId,
+      offeredCourseSectionId: createOfferedCourseSection.id,
+      semesterRegistrationId: isExistOfferedCourse.semesterRegistrationId,
+    }));
 
-    const andConditions = [];
+    await transactionClient.offeredCourseClassSchedule.createMany({
+      data: scheduleData,
+    });
 
-    if (searchTerm) {
-        andConditions.push({
-            OR: offeredCourseSectionSearchableFields.map((field) => ({
-                [field]: {
-                    contains: searchTerm,
-                    mode: 'insensitive'
-                }
-            }))
-        });
-    }
+    return createOfferedCourseSection;
+  });
 
-    if (Object.keys(filterData).length > 0) {
-        andConditions.push({
-            AND: Object.keys(filterData).map((key) => {
-                if (offeredCourseSectionRelationalFields.includes(key)) {
-                    return {
-                        [offeredCourseSectionRelationalFieldsMapper[key]]: {
-                            id: (filterData as any)[key]
-                        }
-                    };
-                } else {
-                    return {
-                        [key]: {
-                            equals: (filterData as any)[key]
-                        }
-                    };
-                }
-            })
-        });
-    }
-
-    const whereConditions: Prisma.OfferedCourseSectionWhereInput =
-        andConditions.length > 0 ? { AND: andConditions } : {};
-
-    const result = await prisma.offeredCourseSection.findMany({
-        where: whereConditions,
-        skip,
-        take: limit,
-        orderBy:
-            options.sortBy && options.sortOrder
-                ? { [options.sortBy]: options.sortOrder }
-                : {
-                    createdAt: 'desc'
-                },
+  const result = await prisma.offeredCourseSection.findFirst({
+    where: {
+      id: createSection.id,
+    },
+    include: {
+      offeredCourse: {
         include: {
-            offeredCourse: {
-                include: {
-                    course: true
-                }
-            }
+          course: true,
         },
-    });
-    const total = await prisma.offeredCourseSection.count({
-        where: whereConditions
-    });
+      },
+      offeredCourseClassSchedules: {
+        include: {
+          room: {
+            include: {
+              building: true,
+            },
+          },
+          faculty: true,
+        },
+      },
+      semesterRegistration: true,
+    },
+  });
 
-    return {
-        meta: {
-            total,
-            page,
-            limit
-        },
-        data: result
-    };
+  return result;
 };
 
-const getByIdFromDB = async (id: string): Promise<OfferedCourseSection | null> => {
-    const result = await prisma.offeredCourseSection.findUnique({
-        where: {
-            id
+const getAllFromDB = async (
+  filters: IOfferedCourseSectionFilterRequest,
+  options: IPaginationOptions
+): Promise<IGenericResponse<OfferedCourseSection[]>> => {
+  const { limit, page, skip } = paginationHelpers.calculatePagination(options);
+  const { searchTerm, ...filterData } = filters;
+
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: offeredCourseSectionSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
         },
-        include: {
-            offeredCourse: {
-                include: {
-                    course: true
-                }
-            }
-        }
+      })),
     });
-    return result;
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map(key => {
+        if (offeredCourseSectionRelationalFields.includes(key)) {
+          return {
+            [offeredCourseSectionRelationalFieldsMapper[key]]: {
+              id: (filterData as any)[key],
+            },
+          };
+        } else {
+          return {
+            [key]: {
+              equals: (filterData as any)[key],
+            },
+          };
+        }
+      }),
+    });
+  }
+
+  const whereConditions: Prisma.OfferedCourseSectionWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.offeredCourseSection.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? { [options.sortBy]: options.sortOrder }
+        : {
+            createdAt: 'desc',
+          },
+    include: {
+      offeredCourse: {
+        include: {
+          course: true,
+        },
+      },
+    },
+  });
+  const total = await prisma.offeredCourseSection.count({
+    where: whereConditions,
+  });
+
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
+};
+
+const getByIdFromDB = async (
+  id: string
+): Promise<OfferedCourseSection | null> => {
+  const result = await prisma.offeredCourseSection.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      offeredCourse: {
+        include: {
+          course: true,
+        },
+      },
+    },
+  });
+  return result;
 };
 
 const updateOneInDB = async (
-    id: string,
-    payload: Partial<OfferedCourseSection>
+  id: string,
+  payload: Partial<OfferedCourseSection>
 ): Promise<OfferedCourseSection> => {
-    //update 
-    const result = await prisma.offeredCourseSection.update({
-        where: {
-            id
-        },
-        data: payload,
+  //update
+  const result = await prisma.offeredCourseSection.update({
+    where: {
+      id,
+    },
+    data: payload,
+    include: {
+      offeredCourse: {
         include: {
-            offeredCourse: {
-                include: {
-                    course: true
-                }
-            }
-        }
-    });
-    return result;
+          course: true,
+        },
+      },
+    },
+  });
+  return result;
 };
 
 const deleteByIdFromDB = async (id: string): Promise<OfferedCourseSection> => {
-    const result = await prisma.offeredCourseSection.delete({
-        where: {
-            id
-        },
+  const result = await prisma.offeredCourseSection.delete({
+    where: {
+      id,
+    },
+    include: {
+      offeredCourse: {
         include: {
-            offeredCourse: {
-                include: {
-                    course: true
-                }
-            }
-        }
-    });
-    return result;
+          course: true,
+        },
+      },
+    },
+  });
+  return result;
 };
 
 export const OfferedCourseSectionService = {
-    insertIntoDB,
-    getAllFromDB,
-    getByIdFromDB,
-    updateOneInDB,
-    deleteByIdFromDB
-}
+  insertIntoDB,
+  getAllFromDB,
+  getByIdFromDB,
+  updateOneInDB,
+  deleteByIdFromDB,
+};
