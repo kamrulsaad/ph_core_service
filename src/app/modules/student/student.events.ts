@@ -10,7 +10,6 @@ const initStudentEvents = () => {
 
     RedisClient.subscribe(EVENT_STUDENT_UPDATED, async (e: string) => {
         const data = JSON.parse(e);
-
         await StudentService.updateStudentFromEvent(data);
     });
 };

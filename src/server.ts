@@ -3,16 +3,17 @@ import app from './app';
 import config from './config';
 import { errorlogger, logger } from './shared/logger';
 import { RedisClient } from './shared/redis';
-
+import subscribeToEvents from './app/events';
 
 async function bootstrap() {
-  await RedisClient.connect();
+  await RedisClient.connect().then(() => {
+    subscribeToEvents();
+  });
   const server: Server = app.listen(config.port, () => {
     logger.info(`Server running on port ${config.port}`);
   });
 
   const exitHandler = () => {
-
     if (server) {
       server.close(() => {
         logger.info('Server closed');
