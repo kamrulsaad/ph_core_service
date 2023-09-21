@@ -6,61 +6,6 @@
     "auditLog": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\.1887f4e830da1330ed6dc15089041a394c2eac4c-audit.json",
     "files": [
         {
-            "date": 1693695479397,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-03-09-04-error.log",
-            "hash": "3f55136e04c03d92ae3f540ae59c90f84f834a48a56755855133a6620cfad823"
-        },
-        {
-            "date": 1693695912497,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-03-09-05-error.log",
-            "hash": "c4b35ebaf9e4d5e1c75e3fca71820b18027e42b3c1005b1a8bf0c24f546878b6"
-        },
-        {
-            "date": 1693848243286,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-04-09-23-error.log",
-            "hash": "1bca190d2b3e36734d36d27cef02e5cde6f5a46ef4c14921315de226b60b0b8e"
-        },
-        {
-            "date": 1693850588375,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-05-09-00-error.log",
-            "hash": "4d3e36f35262950a86406dc6da81bcd11ca8577434fded1a5c58a7a7a6f763a7"
-        },
-        {
-            "date": 1693854014541,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-05-09-01-error.log",
-            "hash": "dfbd74f568bed86c9dd1152b0826d2c3d5275b64207767c34e57e0aacbc4c5b8"
-        },
-        {
-            "date": 1693857660873,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-05-09-02-error.log",
-            "hash": "ebdeed345ef0dc45fe425fd55a86f35b22e111f101f645ec581ff92116af598e"
-        },
-        {
-            "date": 1693861270588,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-05-09-03-error.log",
-            "hash": "2336020a66b682f95c969a65979058f5a9126a8b29f6dcb8cfe3b8e178e70f81"
-        },
-        {
-            "date": 1693864876267,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-05-09-04-error.log",
-            "hash": "6a0b86002e82fec216d7d7cbfcafad3bd645fb0bf5265f9dcd1084b29ba0610d"
-        },
-        {
-            "date": 1693868403177,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-05-09-05-error.log",
-            "hash": "a77a8ede11a0fd401c6791b0f872e51a8451a6ab91e547da357729f0e04ebe61"
-        },
-        {
-            "date": 1693945062425,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-06-09-02-error.log",
-            "hash": "5e95a41308ae4ca9dd83df849dcfe630846c59360989973584bf699deccaa8f4"
-        },
-        {
-            "date": 1693947621215,
-            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-06-09-03-error.log",
-            "hash": "93bb09d695dc1c295b48668856049ea30f1f6cfa8f571cdb3d0c200d686b5fe9"
-        },
-        {
             "date": 1694117755837,
             "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-08-09-02-error.log",
             "hash": "2fd48e5d4cd064cee35816e58a61c4838b0b85f343ee65a8f1d00a888eb760f1"
@@ -124,6 +69,46 @@
             "date": 1694637441053,
             "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-14-09-02-error.log",
             "hash": "331efb2f2282b153bcb92990e446df82f2b0872dd51dfbd93403b7dd11800c9c"
+        },
+        {
+            "date": 1694962668355,
+            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-17-09-20-error.log",
+            "hash": "14b008af5219197a0d28c419e71785275b3c15a5735b48ccebcbbb003fdf50e6"
+        },
+        {
+            "date": 1694965391866,
+            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-17-09-21-error.log",
+            "hash": "5d05bea22d01e5ea2c0a7698d3442e8453d436292992995fb0a93b4e4d87c873"
+        },
+        {
+            "date": 1694969143404,
+            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-17-09-22-error.log",
+            "hash": "8d985ea7724f29b54713a4e5b9aeec1c48f6d714c2f6dddc6bbeae92297b0cb3"
+        },
+        {
+            "date": 1694972169102,
+            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-17-09-23-error.log",
+            "hash": "0bd8db0d85d16f93cfe47c90d5fbcc52c3b4a64d4f548cb0a7763bc4f4d2811b"
+        },
+        {
+            "date": 1695138688180,
+            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-19-09-21-error.log",
+            "hash": "9591d21f72abc12aead73895d31fa6cf01e6598193038ced73ad4c7b3ffe8b24"
+        },
+        {
+            "date": 1695139850277,
+            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-19-09-22-error.log",
+            "hash": "51d612950eb97327006e014a2ac8a6c83bb87d961ee9c55deb0525a267c674d5"
+        },
+        {
+            "date": 1695143794157,
+            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-19-09-23-error.log",
+            "hash": "c9df7e8b02b0289c6340cc9e6dc565cb31f9dc0ce87889a871dbe62c855ddd76"
+        },
+        {
+            "date": 1695200701274,
+            "name": "D:\\Web Development\\Level 2\\university-management\\core-service\\logs\\winston\\errors\\phu-2023-20-09-15-error.log",
+            "hash": "727b6b5a877473e8537f61f197728c7e1285759f274e88751587f6f77acaf2f3"
         }
     ],
     "hashType": "sha256"

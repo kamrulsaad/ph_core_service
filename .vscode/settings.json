@@ -3,5 +3,12 @@
     "source.fixAll.eslint": true,
     "source.fixAll.tslint": true,
     "source.organizeImports": true
-  }
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#d190a9ad",
+    "activityBar.foreground": "#000",
+    "activityBar.activeBackground": "#d190a9",
+    "titleBar.activeBackground": "#d190a9ad",
+    "titleBar.activeForeground": "#000",
+}
 }
